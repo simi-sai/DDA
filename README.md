@@ -1,2 +1,8 @@
-# DDA
-Desarrollo de actividades del curso de Diseño Digital Avanzado de Fundación Fulgor
+# Diseño Digital Avanzado - Fundación Fulgor / FCEFyN
+
+Actividades desarrolladas durante el curso de posgrado de Diseño Digital Avanzado en FPGA impartido por Fundación Fulgor y la FCEFyN.
+
+- **Placa:** Arty A7 (Artix-7 FPGA)
+- **IDE:** AMD Vivado™ Design Suite 2024.2
+
+## Laboratorios
