@@ -1,0 +1,6 @@
+# Linguist overrides for repository
+*.xdc linguist-detectable=false
+*.tcl linguist-detectable=false
+*.tex linguist-detectable=false
+*.pdf linguist-detectable=false
+*.ipynb linguist-detectable=false
