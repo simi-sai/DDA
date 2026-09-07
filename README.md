@@ -5,4 +5,6 @@ Actividades desarrolladas durante el curso de posgrado de Diseño Digital Avanza
 - **Placa:** Arty A7 (Artix-7 FPGA)
 - **IDE:** AMD Vivado™ Design Suite 2024.2
 
-## Laboratorios
+## Laboratorios:
+
+- **Lab1:** Remote Debugging with VIO/ILA - [Ver README](./Laboratorios/Lab1/docs/README.md)
