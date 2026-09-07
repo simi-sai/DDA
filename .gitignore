@@ -1,0 +1,20 @@
+# Environment
+.venv
+.vscode
+
+# VIVADO
+*.cache
+*.hbs
+*.hw
+*.ip_user_files
+*.runs
+*.sim
+*.xpr
+*.dcp
+*bd/
+*.out
+*.wcfg
+
+# Documents
+*Consigna.pdf
+*Consignas.pdf
