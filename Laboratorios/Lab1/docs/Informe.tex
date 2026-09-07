@@ -1,0 +1,374 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{titlesec}
+\usepackage{parskip}
+\usepackage{float}
+
+% Configuración de títulos de párrafos
+\titleformat{\paragraph}[hang]
+{\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
+\titlespacing*{\paragraph}
+{0pt}{3.25ex plus 1ex minus .2ex}{1em}
+
+\geometry{top=3cm, bottom=3cm, left=2.5cm, right=2.5cm}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+\begin{document}
+\begin{titlepage}
+    \begin{center}
+        \vspace*{1cm}
+
+        \Huge
+        \textbf{Laboratorio 1}
+
+        \vspace{0.5cm}
+        \LARGE
+        Remote Debugging con VIO/ILA
+
+        \vspace{1.5cm}
+
+        \vfill
+
+        \Large
+        \textbf{Autor:} Simón Saillen
+
+        \Large
+        \textbf{Profesores:} Ariel Luis Pola, Pablo Cayuela
+
+        \vspace{0.5cm}
+
+        \Large
+        \textbf{Diseño Digital Avanzado}\\
+        \vspace{0.2cm}
+        \textbf{Fundación Fulgor / FCEFyN}\\
+        \vspace{0.2cm}
+        Septiembre 2026
+
+    \end{center}
+\end{titlepage}
+\newpage
+
+\section{Introducción}
+
+Este informe tiene como objetivo documentar el desarrollo de un proyecto de
+diseño digital utilizando Verilog. El proyecto se centra en la implementación
+de un módulo TOP que integra los módulos VIO e ILA para control y depuración.
+
+Se busca validar el comportamiento del diseño mediante un testbench y realizar
+la implementación en una FPGA, conectándose remotamente a la placa.
+
+\section{Objetivos}
+
+\begin{itemize}
+    \item Incluir los módulos VIO e ILA para control y debug del módulo TOP.\@
+    \item Realizar un testbench que valide el comportamiento del diseño sin los IP cores
+          VIO e ILA.\@
+    \item Implementar en FPGA conectándose remotamente a la placa.
+    \item Realizar capturas de pantalla que muestren las waveforms del Testbench e ILA.\@
+\end{itemize}
+
+\section{Desarrollo}
+
+\subsection{Material proporcionado}
+
+Se proporcionaron cinco archivos base:
+
+\begin{itemize}
+    \item \texttt{shiftleds.v}: El modulo TOP que implementa una salida de leds ciclica.
+    \item \texttt{shiftleds\_muxVioIla.v}: El mismo modulo TOP con los modulos VIO e ILA integrados.
+    \item \texttt{tb\_shiftleds\_file.v}: Testbench para el modulo TOP sin los modulos VIO e ILA.\@
+    \item \texttt{Arty\_Master\_v2.xdc}: Archivo de constrains para los pines de la FPGA.\@
+\end{itemize}
+
+Los mismos fueron renombrados, cambiados y adaptados para mejor legibilidad y
+para cumplir con los objetivos del trabajo práctico.
+
+\subsection{Modificaciones realizadas}
+
+\subsubsection{Módulo TOP.v}
+
+Se unificaron los archivos \texttt{shiftleds.v} y
+\texttt{shiftleds\_muxVioIla.v} a \texttt{TOP.v} para tener un solo módulo que
+pueda ser simulado y sintetizado.
+
+Se agregaron las instancias de los modulos VIO e ILA al final del archivo, y se
+agregaron los puertos de entrada y salida necesarios para controlar los modulos
+VIO e ILA desde el testbench.
+
+Algunos nombres de señales fueron cambiados para mejorar la legibilidad del
+código.
+
+\subsubsection{Testbench tb\_TOP.v}
+
+Se renombró el archivo \texttt{tb\_shiftleds\_file.v} a \texttt{tb\_TOP.v}.
+
+Sin modificar el modulo TOP, se cambió el parámetro del testbench
+\texttt{NB\_COUNT} de 32 a 20, al hacer este cambio la cantidad necesaria de
+ciclos para superar el primer limite \texttt{R0} pasa de $2^{22}$ a $2^{10}$,
+permitiendo shifteos de registro mas seguidos y logrando una mejor observación
+del comportamiento.
+
+Se corrigio el comportamiento del reset en el codigo para que actue con reset
+al contador luego de cada cambio de configuracion para mejorar la observacion
+de los cambios de las waveforms.
+
+Tambien se agrego un ultimo estado extra en el cual se desactiva el \texttt{init} del
+contador para poder observar el comportamiento de los leds al inhabilitar el
+contador y mantener el valor de salida previo.
+
+\section{Resultados}
+
+\subsection{Simulacion}
+
+Antes de modificar la cantidad de bits del contador, se realizó la simulación
+del testbench \texttt{tb\_TOP.v} y se obtuvieron las siguientes waveforms:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../images/tb_waveform_default.png}
+    \caption{Simulación del testbench tb\_TOP.v con contador de 32 bits.}
+\end{figure}
+
+Como se puede observar, el contador no logra superar el primer limite,
+manteniendo el valor de salida de los leds en \texttt{4'b0001} de manera
+constante. Pero se puede comprobar que el color del led si cambia al cambiar el
+valor de \texttt{switch[3]} a \texttt{1}.
+
+Una vez modificado el parámetro del contador a 20 bits, se realizó nuevamente
+la simulación del testbench \texttt{tb\_TOP.v} y se obtuvieron las siguientes
+waveforms:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../images/tb_waveform_20bits.png}
+    \caption{Simulación del testbench tb\_TOP.v con contador de 20 bits.}
+\end{figure}
+
+Como se puede observar, el contador logra superar los distintos limites,
+cambiando el valor de salida de los leds de manera cíclica. Ademas, se puede
+observar el cambio de velocidad del ciclo de los leds al cambiar el valor de
+\texttt{SEL = switch[2:1]}. Y por último, se puede observar que al cambiar el valor
+de \texttt{switch[0]} a \texttt{0}, se inhabilita el \texttt{init}, impidiendo
+que el contador pueda avanzar y manteniendo el valor de salida previo de los
+leds.
+
+\subsection{Implementación en FPGA}
+
+\subsubsection{Conexión remota a la placa y configuración de VIO e ILA}
+
+Una vez conectado remotamente a la placa mediante SSH, se realizó la
+configuración de los modulos VIO e ILA para poder controlar el modulo TOP y
+observar su comportamiento.
+
+El modulo VIO fue configurado para controlar las señales de entrada del modulo
+TOP, permitiendo cambiar los valores \texttt{select\_mux}, \texttt{vio\_reset}
+y \texttt{vio\_switch} desde la interfaz de usuario.
+
+El modulo ILA fue configurado para observar las señales de salida del modulo
+TOP, permitiendo capturar las waveforms de las señales \texttt{LED[3:0]}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../images/VIO_FPGA_Config.png}
+    \caption{Configuración del módulo VIO en la FPGA.}
+\end{figure}
+
+\subsubsection{Captura de waveforms con ILA}
+
+Se realizaron distintos escenarios de prueba utilizando el modulo VIO para
+cambiar los valores de entrada del modulo TOP y se capturaron las waveforms
+correspondientes con el modulo ILA.\@
+
+\textbf{Escenario 1: Immediate (Idle)}
+
+Se configuraron los valores de \texttt{select\_mux = 1}, \texttt{vio\_reset =
+    1} y \texttt{vio\_switch = 4'b1001}.
+
+ILA con trigger en modo immediate, capturando las señales de salida de los leds
+en el instante de captura.
+
+Se lograron capturar las siguientes waveforms:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../images/waveforms/immediate.png}
+    \caption{Captura de waveforms con ILA en estado immediate (Idle).}
+\end{figure}
+
+Como se puede observar, la señal capturada muestra el estado actual de los leds
+en el instante de la captura, ignorando el trigger seteado en el ILA.\@
+
+\textbf{Escenario 2: Desplazamiento Ciclico}
+
+Se configuraron los valores de \texttt{select\_mux = 1}, \texttt{vio\_reset =
+    1} y \texttt{vio\_switch = 4'b1001}. Habilitado, con velocidad \texttt{R0} y
+leds verdes activos.
+
+Debido al limitante de cantidad de muestras del ILA, se tuvieron que realizar
+varias capturas para poder observar el comportamiento completo del
+desplazamiento cíclico de los leds.
+
+Cambiando el valor del trigger del ILA:\@
+
+\begin{itemize}
+    \item Primera captura: \texttt{LED == 4'bXX1X}
+    \item Segunda captura: \texttt{LED == 4'bX1XX}
+    \item Tercera captura: \texttt{LED == 4'b1XXX}
+    \item Cuarta captura: \texttt{LED == 4'bXXX1}
+\end{itemize}
+
+Las capturas de waveforms obtenidas fueron las siguientes:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../images/waveforms/cyclic_shift_1.png}
+    \includegraphics[width=0.8\textwidth]{../images/waveforms/cyclic_shift_2.png}
+    \caption{Captura de waveforms con ILA en estado desplazamiento cíclico (1).}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../images/waveforms/cyclic_shift_3.png}
+    \includegraphics[width=0.8\textwidth]{../images/waveforms/cyclic_shift_4.png}
+    \caption{Captura de waveforms con ILA en estado desplazamiento cíclico (2).}
+\end{figure}
+
+Juntando las cuatro capturas, se puede observar el desplazamiento cíclico de
+los leds en el orden correcto, cumpliendo con el comportamiento esperado del
+modulo TOP.\@
+
+\textbf{Escenario 3: Control de Color de Leds}
+
+Se configuraron los valores de \texttt{select\_mux = 1}, \texttt{vio\_reset =
+    1} y \texttt{vio\_switch = 4'b1001}. Habilitado, con velocidad \texttt{R0} y
+leds verdes activos.
+
+Para comprobar el cambio de color de los leds no se puede observar
+directamente en las waveforms ya que el ILA solo captura el estado de los leds
+generales LED, por eso hay que observar los cambios en VIO.\@
+
+Para observar el cambio de color se cambio el valor de \texttt{vio\_switch[3] =
+    0}, cambiando el color de los leds de verde a azul.
+
+Esto es observable en la siguiente captura de pantalla, donde se ve reflejado
+que leds estan activos mediante las flechas de actividad del VIO:\@
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../images/waveforms/vio_color_control_green.png}
+    \includegraphics[width=0.8\textwidth]{../images/waveforms/vio_color_control_blue.png}
+    \caption{Captura de los probes del VIO pasando de salida de leds verde a azul.}
+\end{figure}
+
+\textbf{Escenario 4: Inhabilitación de Contador}
+
+Se configuraron los valores de \texttt{select\_mux = 1}, \texttt{vio\_reset =
+    1} y \texttt{vio\_switch = 4'b1001}. Habilitado, con velocidad \texttt{R0} y
+leds verdes activos.
+
+Para comprobar esto se cambio el valor de \texttt{vio\_switch[0] = 0},
+inhabilitando el contador y manteniendo el valor de salida de los leds previo
+al cambio.
+
+Luego de ejecutar el trigger immediate se obtuvo la siguiente waveform:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../images/waveforms/not_init.png}
+    \caption{Captura de waveforms con ILA en estado inhabilitación de contador.}
+\end{figure}
+
+Este valor de salida en teoria esta manteniendose constante, para comprobar
+esto se cambia el valor del trigger del ILA a un valor distinto, por ejemplo
+\texttt{LED == 4'bX1XX} y se deberia observar que el trigger nunca se cumple,
+quedando en \texttt{waiting for trigger}.
+
+Como se predecia, el trigger nunca se cumple y el ILA queda en estado de
+espera:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../images/waveforms/not_init_waiting.png}
+    \caption{ILA en estado de espera.}
+\end{figure}
+
+\section{Conclusiones}
+
+A partir de los escenarios ensayados, se validó de manera exitosa el
+funcionamiento del módulo \texttt{TOP} sobre la FPGA utilizando un entorno de
+depuración remota. Mediante el módulo VIO se logró la inyección de estímulos
+virtuales interactivos, emulando con precisión la periferia de switches y
+botones físicos de la placa. Por el otro, el módulo ILA posibilitó la
+inspección temporal interna de señales de alta velocidad directas del reloj de
+100 MHz.
+
+El análisis de las waveforms obtenidas ratificó el correcto comportamiento
+secuencial del diseño. A pesar de la restricción en la profundidad de memoria
+del buffer del ILA (1024 muestras básicos), el uso estratégico de máscaras de
+bit con estados de indiferencia \texttt{X} permitió reconstruir secuencialmente
+el desplazamiento circular completo del registro en el orden correcto.
+Asimismo, las pruebas estáticas de inhabilitación mediante la señal
+\texttt{init} comprobaron empíricamente la retención de estado de los
+flip-flops, evidenciada por el bloqueo en estado \textit{Waiting for Trigger}
+del analizador lógico.
+
+Se verificó la correcta segregación de las herramientas de diagnóstico:
+mientras que los eventos de naturaleza secuencial y temporal dependientes del
+reloj fueron auditados con precisión mediante el ILA, la lógica puramente
+combinacional encargada del control de color del periférico (\texttt{G\_LED} y
+\texttt{B\_LED}) fue satisfactoriamente comprobada a nivel general mediante el
+monitoreo directo de \textit{probes} en el VIO Dashboard.
+
+Como balance final, el flujo completo de diseño y verificación (desde la
+generación de vectores de prueba en simulación hasta la ejecución e inspección
+en hardware real) demostró ser robusto, funcional y alineado con las
+especificaciones de diseño requeridas.
+
+\end{document}
