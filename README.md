@@ -11,4 +11,4 @@ Actividades desarrolladas durante el curso de posgrado de Diseño Digital Avanza
 
 ### Actividades:
 
-- **Guia Practica 1:** Introducción a Vivado y VIO/ILA - [Ver Informe](./GuiasPracticas/GP1/docs/Informe.pdf)
+- **Guia Practica 1:** RTL Design Interpretation, Testbenching and Implementation - [Ver Informe](./GuiasPracticas/GP1/docs/Informe.pdf)
