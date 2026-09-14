@@ -8,3 +8,7 @@ Actividades desarrolladas durante el curso de posgrado de Diseño Digital Avanza
 ## Laboratorios:
 
 - **Lab1:** Remote Debugging with VIO/ILA - [Ver Informe](./Laboratorios/Lab1/docs/Informe.pdf)
+
+### Actividades:
+
+- **Guia Practica 1:** Introducción a Vivado y VIO/ILA - [Ver Informe](./GuiasPracticas/GP1/docs/Informe.pdf)
